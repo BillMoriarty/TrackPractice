@@ -64,9 +64,7 @@ struct ContentView: View {
     @ObservedObject var activitiesToTrack: Activities = Activities()
         
     var body: some View {
-        
         VStack {
-            
             NavigationView {
                 VStack{
                     List(activitiesToTrack.currentActivies) { activ in
@@ -91,28 +89,25 @@ struct ContentView: View {
                 .navigationBarTitle("Track Some Topics")
                 
             }//end nav view
-            
-            TextField("Type a title", text: $tempTitle)
-            TextField("Type a description", text: $tempDescription)
-            
+
             Button(action: {
                 self.showingSheet = true
             }) {
                 Text("Add Activity")
-            }.actionSheet(isPresented: $showingSheet) {
-                    ActionSheet(
-                        title: Text("Are you sure you want to add this activity?"),
-                        buttons: [
-                            .default(Text("Yeah, add this activity"),
-                                     action: {
-                                        self.addActivity(
-                                            title: self.tempTitle,
-                                            description: self.tempDescription
-                                            )}),
-                            .cancel()
-                            ])}//end actionsheet
-            }
-        }//end Vstack
+            }.sheet(isPresented: $showingSheet) {
+                NavigationView {
+                Form {
+                    TextField("Type a title", text: self.$tempTitle)
+                    TextField("Type a description", text: self.$tempDescription)
+                    Button("add activity") {
+                        self.addActivity(title: self.tempTitle,description: self.tempDescription)
+                        self.showingSheet.toggle()
+                        }//end button
+                    }//end form
+                    }//end NavigationView
+                }//end sheet
+            } //end Vstack
+        }//end var body: some View {
     
 
     func addActivity(title: String, description: String)  {
@@ -123,7 +118,7 @@ struct ContentView: View {
     }
     
     
-}
+} //end struct ContentView: View
 
     
 
