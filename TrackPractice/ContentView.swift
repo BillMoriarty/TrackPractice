@@ -10,7 +10,7 @@ import SwiftUI
 
 //define a struct that holds a single activity
     //conforms to Identifiable
-struct Activity: Identifiable {
+struct Activity: Identifiable, Codable{
     let id = UUID()
     
     var title: String
@@ -27,33 +27,15 @@ struct Activity: Identifiable {
     //The class will need to conform to ObservableObject
     // use @Published for its property.
 class Activities: ObservableObject {
-    @Published var currentActivies: [Activity]
+    @Published var currentActivies: [Activity] = [Activity]()
     
     init() {
-        self.currentActivies = [Activity]()
-        let newActivity = Activity(title: "default", description: "here ya go")
-        currentActivies.append(newActivity)
+        let data = UserDefaults.standard.data(forKey: "theirStoredActivies")
+        let decoder = JSONDecoder()
+        
+        currentActivies = (try? decoder.decode([Activity].self, from: data ?? Data())) ?? []
     }
 }
-
-//a form to add new activities –
-    // a title
-    // a description should be enough
-    /// -> having trouble with this part.. .maybe later - Present your adding form using sheet()
-
-//a list of all activities they want to track
-    //NavigationLink destination ->
-        //tapping one of the activities should show a detail screen with
-            // the description,
-            // how many times they have completed it,
-            // a button incrementing their completion count.
-
-// they get to decide which activities they add, and track it however they want
-
-//Your main listing and form should both be able to read the shared activities object.
-
-//For an even bigger challenge, use Codable and UserDefaults to load and save all your data.
-
 
 struct ContentView: View {
     @State private var showingSheet = false
@@ -96,30 +78,32 @@ struct ContentView: View {
                 Text("Add Activity")
             }.sheet(isPresented: $showingSheet) {
                 NavigationView {
-                Form {
-                    TextField("Type a title", text: self.$tempTitle)
-                    TextField("Type a description", text: self.$tempDescription)
-                    Button("add activity") {
-                        self.addActivity(title: self.tempTitle,description: self.tempDescription)
-                        self.showingSheet.toggle()
-                        }//end button
-                    }//end form
+                    Form {
+                        TextField("Type a title", text: self.$tempTitle)
+                        TextField("Type a description", text: self.$tempDescription)
+                        Button("add activity") {
+                            self.addActivity(title: self.tempTitle,description: self.tempDescription)
+                            self.showingSheet.toggle()
+                            }//end button
+                        }//end form
                     }//end NavigationView
                 }//end sheet
             } //end Vstack
         }//end var body: some View {
-    
 
     func addActivity(title: String, description: String)  {
         let newActivity = Activity(title: title, description: description)
         self.activitiesToTrack.currentActivies.append(newActivity)
         print("=============")
         print(self.activitiesToTrack.currentActivies.endIndex)
-    }
-    
-    
+        print("=============")
+        let encoder = JSONEncoder()
+        if let data = try? encoder.encode(self.activitiesToTrack.currentActivies) {
+            UserDefaults.standard.set(data, forKey: "theirStoredActivities")
+        }
+    }//end addActivity
+        
 } //end struct ContentView: View
-
     
 
 struct ContentView_Previews: PreviewProvider {
