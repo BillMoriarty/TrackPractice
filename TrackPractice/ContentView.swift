@@ -17,6 +17,10 @@ struct ContentView: View {
     
     @ObservedObject var activitiesToTrack: Activities = Activities()
         
+
+    
+    
+    
     var body: some View {
         VStack {
             NavigationView {
@@ -24,52 +28,29 @@ struct ContentView: View {
                     List(activitiesToTrack.currentActivies) { activ in
                         NavigationLink(destination:
                             VStack{
-                                
+
                                 VStack{
                                 Text(activ.title)
                                 Text(activ.description)
-                                Text(String(activ.numberCompleted))
-                                Button(action: {
+                                    Text(String(activ.numberCompleted))
+                                    .padding()
+                                    
+                                Button("Did it!") {
                                     if let index = self.activitiesToTrack.currentActivies.firstIndex(where: { $0.id == activ.id }) {
-                                        self.activitiesToTrack.currentActivies[index].numberCompleted+=1
-                                        }
-                                    }) {Text("I did it again")}//end buttin
+                                    self.activitiesToTrack.currentActivies[index].numberCompleted+=1
+                                    }//end if
+                                }//button styling
                                 .padding()
-                                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.blue, lineWidth: 4))
-                                }
+                                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.blue, lineWidth: 2))
+                                }//vstack styling
                                 .padding()
-                                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.blue, lineWidth: 4))
+                                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.blue, lineWidth: 2))
                                 
                                 Spacer()
-                                
-                                //edit activity button
-                                Button(action: {
-                                    self.showingEditActivitySheet = true
-                                })
-                                {
-                                Text("Edit Activity")
-                                }.sheet(isPresented: self.$showingEditActivitySheet) {
-                                    NavigationView {
-                                        Form {
-                                            TextField(activ.title, text: self.$tempTitle)
-                                            TextField(activ.description, text: self.$tempDescription)
-                                            Button("Save Edit") {
-                                                self.editActivity(newTitle: self.tempTitle,
-                                                                  newDescription: self.tempDescription,
-                                                                  activityToEdit:activ)
-                                                self.showingEditActivitySheet.toggle()
-                                                }//end button
-                                            Button("cancel"){
-                                                self.showingEditActivitySheet.toggle()
-                                                }//end button
-                                            }//end form
-                                        }//end NavigationView
-                                    }//end sheet connected to button
-                                
+                                self.createEditActivityView(activ: activ)
                                 Spacer()
                                 
                                 }//end Vstack
-                            
                         )//end naivgationLink
                             {
                             Text("\(activ.title)")
@@ -77,31 +58,11 @@ struct ContentView: View {
                         .listRowBackground(Color.green)
                     }//end List
                 }//end vstack
-                    
-
-                .navigationBarTitle("Practice Tracker")
+                .navigationBarItems(trailing:
+                    createAddActivityView()//end sheet connected to button
+                )
+                .navigationBarTitle("Activity Tracker")
             }//end nav view
-            
-            //add activity button
-            Button(action: {
-                self.showingAddActivitySheet = true
-            }) {
-                Text("Add Activity")
-            }.sheet(isPresented: $showingAddActivitySheet) {
-                NavigationView {
-                    Form {
-                        TextField("Type a title", text: self.$tempTitle)
-                        TextField("Type a description", text: self.$tempDescription)
-                        Button("add activity") {
-                            self.addActivity(title: self.tempTitle,description: self.tempDescription)
-                            self.showingAddActivitySheet.toggle()
-                            }//end button
-                        Button("cancel"){
-                            self.showingAddActivitySheet.toggle()
-                            }//end button
-                        }//end form
-                    }//end NavigationView
-                }//end sheet connected to button
             
             } //end Vstack
         }//end var body: some View {
@@ -127,6 +88,55 @@ struct ContentView: View {
         //reset the local strings to empty
         self.tempTitle = ""
         self.tempDescription = ""
+    }
+    
+    fileprivate func createAddActivityView() -> some View {
+        return //add activity button
+            Button(action: {
+                self.showingAddActivitySheet = true
+            }) {
+                Text("Add Activity")
+            }.sheet(isPresented: $showingAddActivitySheet) {
+                NavigationView {
+                    Form {
+                        TextField("Type a title", text: self.$tempTitle)
+                        TextField("Type a description", text: self.$tempDescription)
+                        Button("add activity") {
+                            self.addActivity(title: self.tempTitle,description: self.tempDescription)
+                            self.showingAddActivitySheet.toggle()
+                        }//end button
+                        Button("cancel"){
+                            self.showingAddActivitySheet.toggle()
+                        }//end button
+                    }//end form
+                }//end NavigationView
+        }
+    }
+    
+    fileprivate func createEditActivityView(activ: Activity) -> some View {
+        return //edit activity button
+            Button(action: {
+                self.showingEditActivitySheet = true
+            })
+            {
+                Text("Edit Activity")
+            }.sheet(isPresented: self.$showingEditActivitySheet) {
+                NavigationView {
+                    Form {
+                        TextField(activ.title, text: self.$tempTitle)
+                        TextField(activ.description, text: self.$tempDescription)
+                        Button("Save Edit") {
+                            self.editActivity(newTitle: self.tempTitle,
+                                              newDescription: self.tempDescription,
+                                              activityToEdit:activ)
+                            self.showingEditActivitySheet.toggle()
+                        }//end button
+                        Button("cancel"){
+                            self.showingEditActivitySheet.toggle()
+                        }//end button
+                    }//end form
+                }//end NavigationView
+        }
     }
         
 } //end struct ContentView: View
