@@ -17,9 +17,6 @@ struct ContentView: View {
     
     @ObservedObject var activitiesToTrack: Activities = Activities()
         
-
-    
-    
     
     var body: some View {
         VStack {
@@ -35,11 +32,13 @@ struct ContentView: View {
                                     Text(String(activ.numberCompleted))
                                     .padding()
                                     
-                                Button("Did it!") {
-                                    if let index = self.activitiesToTrack.currentActivies.firstIndex(where: { $0.id == activ.id }) {
-                                    self.activitiesToTrack.currentActivies[index].numberCompleted+=1
-                                    }//end if
-                                }//button styling
+                                    Button(action:  {
+                                        if let index = self.activitiesToTrack.currentActivies.firstIndex(where: { $0.id == activ.id }) {
+                                            self.activitiesToTrack.currentActivies[index].numberCompleted+=1
+                                        }//end if
+                                    }){
+                                        Text("tap me")
+                                    }//end button text
                                 .padding()
                                 .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.blue, lineWidth: 2))
                                 }//vstack styling
