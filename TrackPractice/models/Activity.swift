@@ -21,4 +21,15 @@ struct Activity: Identifiable, Codable{
         self.description = description
     }
     
+    mutating func editYourActivity(newTitle: String, newDescription: String) {
+                    
+            if !newTitle.isEmpty {
+                self.title = newTitle
+            }
+            
+            if !newDescription.isEmpty {
+                self.description = newDescription
+            }
+    }
+    
 }

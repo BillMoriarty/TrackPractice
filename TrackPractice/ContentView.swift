@@ -9,7 +9,8 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var showingSheet = false
+    @State private var showingAddActivitySheet = false
+    @State private var showingEditActivitySheet = false
     @State private var inputField = String()
     @State private var tempTitle = String()
     @State private var tempDescription = String()
@@ -23,6 +24,8 @@ struct ContentView: View {
                     List(activitiesToTrack.currentActivies) { activ in
                         NavigationLink(destination:
                             VStack{
+                                
+                                VStack{
                                 Text(activ.title)
                                 Text(activ.description)
                                 Text(String(activ.numberCompleted))
@@ -30,46 +33,101 @@ struct ContentView: View {
                                     if let index = self.activitiesToTrack.currentActivies.firstIndex(where: { $0.id == activ.id }) {
                                         self.activitiesToTrack.currentActivies[index].numberCompleted+=1
                                         }
-                                    }) {Text("I did it again")}
-                                }){
+                                    }) {Text("I did it again")}//end buttin
+                                .padding()
+                                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.blue, lineWidth: 4))
+                                }
+                                .padding()
+                                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.blue, lineWidth: 4))
+                                
+                                Spacer()
+                                
+                                //edit activity button
+                                Button(action: {
+                                    self.showingEditActivitySheet = true
+                                })
+                                {
+                                Text("Edit Activity")
+                                }.sheet(isPresented: self.$showingEditActivitySheet) {
+                                    NavigationView {
+                                        Form {
+                                            TextField(activ.title, text: self.$tempTitle)
+                                            TextField(activ.description, text: self.$tempDescription)
+                                            Button("Save Edit") {
+                                                self.editActivity(newTitle: self.tempTitle,
+                                                                  newDescription: self.tempDescription,
+                                                                  activityToEdit:activ)
+                                                self.showingEditActivitySheet.toggle()
+                                                }//end button
+                                            Button("cancel"){
+                                                self.showingEditActivitySheet.toggle()
+                                                }//end button
+                                            }//end form
+                                        }//end NavigationView
+                                    }//end sheet connected to button
+                                
+                                Spacer()
+                                
+                                }//end Vstack
+                            
+                        )//end naivgationLink
+                            {
                             Text("\(activ.title)")
                             }
+                        .listRowBackground(Color.green)
                     }//end List
                 }//end vstack
+                    
+
                 .navigationBarTitle("Practice Tracker")
             }//end nav view
-
+            
+            //add activity button
             Button(action: {
-                self.showingSheet = true
+                self.showingAddActivitySheet = true
             }) {
                 Text("Add Activity")
-            }.sheet(isPresented: $showingSheet) {
+            }.sheet(isPresented: $showingAddActivitySheet) {
                 NavigationView {
                     Form {
                         TextField("Type a title", text: self.$tempTitle)
                         TextField("Type a description", text: self.$tempDescription)
                         Button("add activity") {
                             self.addActivity(title: self.tempTitle,description: self.tempDescription)
-                            self.showingSheet.toggle()
+                            self.showingAddActivitySheet.toggle()
                             }//end button
                         Button("cancel"){
-                            self.showingSheet.toggle()
+                            self.showingAddActivitySheet.toggle()
                             }//end button
                         }//end form
                     }//end NavigationView
-                }//end sheet
+                }//end sheet connected to button
+            
             } //end Vstack
         }//end var body: some View {
 
+
+    
     func addActivity(title: String, description: String)  {
         let newActivity = Activity(title: title, description: description)
         self.activitiesToTrack.currentActivies.append(newActivity)
-        
-        //reset the local strings to empty 
-        self.tempTitle = ""
-        self.tempDescription = ""
+       
+        resetStringVariables()
 
     }//end addActivity
+    
+    func editActivity(newTitle: String, newDescription: String, activityToEdit: Activity) {
+        if let index = self.activitiesToTrack.currentActivies.firstIndex(where: { $0.id == activityToEdit.id }) {
+            self.activitiesToTrack.currentActivies[index].editYourActivity(newTitle: newTitle, newDescription: newDescription)
+        }
+        resetStringVariables()
+    }
+    
+    fileprivate func resetStringVariables() {
+        //reset the local strings to empty
+        self.tempTitle = ""
+        self.tempDescription = ""
+    }
         
 } //end struct ContentView: View
     
